@@ -1,16 +1,22 @@
 # DASH-NS3
+
+Last update 2018-11
+
 A simulation model for HTTP-based adaptive streaming applications
 
 If you use the model, please reference "Simulation Framework for HTTP-Based Adaptive Streaming Applications" by Harald Ott, Konstantin Miller, and Adam Wolisz, 2017
 
 ## NEEDED FILES
+
 Just drop the repository into the contrib/ folder of ns-3 (only works with ns version >= 3.27)
 
 ## PROGRAM EXECUTION
+
 The following parameters have to be specified for program execution:
+
 - simulationId: The Id of this simulation, to distinguish it from others, with same algorithm and number of clients, for logging purposes.
 - numberOfClients: The number of streaming clients used for this simulation.
-- segmentDuration: The duration of a segment in microseconds.
+- segmentDuration: The duration of a segment in nanoseconds.
 - adaptationAlgo: The name of the adaptation algorithm the client uses for the simulation. The 'pre-installed' algorithms are tobasco, festive and panda.
 - segmentSizeFile: The relative path (from the ns-3.x/ folder) of the file containing the sizes of the segments of the video. The segment sizes have to be provided as a (n, m) matrix, with n being the number of representation levels and m being the total number of segments. A two-segment long, three representations containing segment size file would look like the following:
 
@@ -19,12 +25,13 @@ The following parameters have to be specified for program execution:
  1987 121606  
 
 One possible execution of the program would be:
+
 ```bash
 ./waf --run="tcp-stream --simulationId=1 --numberOfClients=3 --adaptationAlgo=panda --segmentDuration=2000000 --segmentSizeFile=contrib/dash/segmentSizes.txt"
 ```
 
-
 ## ADDING NEW ADAPTATION ALGORITHMS
+
 The adaptation algorithm base class is located in src/applications/model/adaptation-algorithm/. If it is desired to implement a new adaptation algorithm, a separate source and header file for the algorithm can be created in the adaptation-algorithm/ folder. An example of how a header file looks like can be seen here:
 
 ```c++
@@ -44,8 +51,8 @@ public:
 
 NewAdaptationAlgorithm ( const videoData &videoData,
                          const playbackData & playbackData,
-			 const bufferData & bufferData,
-			 const throughputData & throughput );
+                         const bufferData & bufferData,
+                         const throughputData & throughput );
 
 algorithmReply GetNextRep ( const int64_t segmentCounter );
 };
@@ -63,7 +70,7 @@ int64_t decisionCase; // indicate in which part of the adaptation algorithm's co
 int64_t delayDecisionCase; // indicate in which part of the adaptation algorithm's code the decision was made, how much time in microsends to wait until the segment shall be requested from server, only for logging purposes
 ```
 
-Next, it is necessary to include the following lines to the top of the source file.
+Next, it is necessary to include the following lines to the top of the source file. 
 
 ```c++
 NS_LOG_COMPONENT_DEFINE ("NewAdaptationAlgorithm");
@@ -76,7 +83,7 @@ It is obligatory to inherit from AdaptationAlgorithm and implement the algorithm
 if (algorithm == "tobasco")
   {
     algo = new TobascoAlgorithm (m_videoData, m_playbackData, m_bufferData, m_throughput);
-  }
+  } 
 else if (algorithm == "panda")
   {
     algo = new PandaAlgorithm (m_videoData, m_playbackData, m_bufferData, m_throughput);
@@ -90,6 +97,7 @@ else
     // Stop program
   }
 ```
+
 Lastly, the header file of the newly implemented adaptation algorithm needs to be included in the TcpStreamClient header file.
 
 The resulting logfiles will be written to mylogs/algorithmName/numberOfClients/
